@@ -14,6 +14,10 @@ case = {
     "/": num1 / num2
 }
 
-print(case[operation])
+# if operation input is not in the set [case], print error
+if operation not in case:
+    print("Error: Invalid operation")
+else:
+    print(case[operation])
 
 input("Press enter to exit")
