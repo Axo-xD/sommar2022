@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+  <include file="$(find mbs_husky_startup)/launch/include/husky_core.launch" />
+  <include file="$(find mbs_husky_ouster)/launch/ouster.launch" />
+  <!-- <include file="$(find mbs_husky_control)/launch/gps_localization.launch" /> -->
+  <!-- <include file="$(find mbs_husky_utilities)/launch/ouster_stamped.launch" /> -->
+  <include file="$(find mbs_husky_utilities)/launch/pcl_filter.launch" />
+  <include file="$(find mbs_husky_utilities)/launch/laserscan.launch" />
+    <!-- <node pkg="mbs_husky" type="utm_pose.py" name="utm_pose"/>  -->
+
+</launch>
+

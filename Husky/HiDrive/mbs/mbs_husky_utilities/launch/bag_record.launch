@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- <arg name="bags_directory" value="$(find mbs_husky_startup)/data"/> -->
+    <arg name="bags_directory" value="/home/administrator/data"/>
+
+    <!-- Record bag -->
+    <node name="bag_record" pkg="rosbag" type="record"
+          args="record -o $(arg bags_directory)/bag  /tf /points /tf_static /odometry/filtered"/>
+
+</launch>

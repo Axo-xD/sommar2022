@@ -1,0 +1,11 @@
+<launch>
+    <arg name="config"/>
+    <!--Instance of robot_localization/-->
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_$(arg config)" clear_params="true" output="screen">
+      <!-- Configuration parameters -->
+      <rosparam command="load" file="$(find mbs_husky_control)/config/ekf_localization_$(arg config)_params.yaml" />
+      <!-- Published topics -->
+      <remap from="odometry/filtered" to="odometry/filtered/$(arg config)"/>
+    </node>
+</launch>
+
