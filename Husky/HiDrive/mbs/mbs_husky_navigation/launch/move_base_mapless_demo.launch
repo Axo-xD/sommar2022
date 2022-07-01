@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="odometry_topic" default="mbs_husky/odometry/filtered/global"/>
+
+  <!--- Run Move Base -->  
+  <include file="$(find mbs_husky_navigation)/launch/include/move_base.launch">
+    <arg name="no_static_map" value="true"/>
+    <arg name="odom_topic" value="$(arg odometry_topic)"/>
+  </include>
+  
+</launch>

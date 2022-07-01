@@ -1,0 +1,14 @@
+<launch>
+  <group ns="mbs_husky">
+    <!-- navsat_transform_node -->
+    <include file="$(find mbs_husky_control)/launch/include/navsat.launch"/>
+    <!-- ekf_localization with gps (global) -->
+    <include file="$(find mbs_husky_control)/launch/include/ekf_localization.launch">
+      <arg name="config" value="global"/>
+   </include>
+   <!-- ekf_localization using robot odometry (local) -->
+    <include file="$(find mbs_husky_control)/launch/include/ekf_localization.launch">
+      <arg name="config" value="local"/>
+   </include>
+  </group>
+</launch>
