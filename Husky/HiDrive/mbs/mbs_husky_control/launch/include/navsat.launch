@@ -1,0 +1,15 @@
+<launch>
+    <!--robot_localization: navsat_transform_node-->
+    <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" respawn="true" output="screen">
+        <!-- Configuration parameters -->
+        <rosparam command="load" file="$(find mbs_husky_control)/config/navsat_params.yaml" />
+        <!-- Subscribed topics --> 
+        <remap from="imu/data" to="/imu/data" />
+        <remap from="gps/fix" to="/navsat/fix" />
+        <!-- <remap from="gps/fix" to="/navsat/fix" /> -->
+        <remap from="odometry/filtered" to="odometry/filtered/global"/>
+        <!-- Published topics -->
+        <remap from="odometry/gps" to="odometry/navsat"/>
+    </node>
+</launch>
+

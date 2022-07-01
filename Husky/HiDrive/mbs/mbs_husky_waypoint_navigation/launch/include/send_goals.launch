@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<node pkg="outdoor_waypoint_nav" type="gps_waypoint" name="gps_waypoint" output="screen" />
+	<param name="/outdoor_waypoint_nav/coordinates_file" value="/waypoint_files/mbs_points_outdoor.txt" type="string" />
+			
+</launch>
