@@ -1,1 +1,0 @@
-KERNEL=="ttyUSB*",SUBSYSTEM=="tty", ATTRS{manufacturer}=="Prolific Technology Inc. ", ATTRS{idVendor}=="067b", ATTRS{idProduct}=="2303", SYMLINK="prolific"
