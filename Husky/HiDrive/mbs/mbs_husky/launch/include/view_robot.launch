@@ -1,0 +1,5 @@
+<launch>
+  <param name="use_gui" value="true"/>
+  <arg name="config" default="complete" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mbs_husky)/rviz/$(arg config).rviz" />
+</launch>
