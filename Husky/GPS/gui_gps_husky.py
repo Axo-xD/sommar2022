@@ -21,8 +21,9 @@ class GPS_husky(ctk.CTk):
                 map_height=600, 
                 default_pos=(61.4587735, 5.8875730), 
                 default_zoom=18, 
-                husky_pos=(61.4587532, 5.8876001)):
-        super().__init__()
+                husky_pos=(61.4587532, 5.8876001),
+                number_of_markers = 4): # Maximum number of goal points
+        super().__init__() # Call the parent class constructor.
 
         self.title(title)
         self.geometry(geometry)
@@ -32,8 +33,9 @@ class GPS_husky(ctk.CTk):
         self.husky_pos = husky_pos
 
         self.marker_list = []
+
         self.marker_path = None
-        self.number_of_markers = 4
+        self.number_of_markers = number_of_markers
 
         # ======= Frames ======= #
         # Frame for the map
@@ -44,7 +46,6 @@ class GPS_husky(ctk.CTk):
         self.dataframe.pack(pady=10, side=TOP)
 
         # ===== Map Wiget ===== #
-        
         self.map_wig = tkmap.TkinterMapView(self.mapframe, width=map_width, height=map_height, corner_radius=10)
         self.map_wig.pack()
         self.__default_view()
@@ -77,6 +78,38 @@ class GPS_husky(ctk.CTk):
         self.botlontext.grid(row=2,column=2,pady=5,padx=5)
         # Position marker #
         self.botmarker = self.map_wig.set_marker(self.husky_pos[0],self.husky_pos[1], marker_color_circle="black", marker_color_outside="gray40")
+        # Bot view #
+        self.botview = ctk.CTkCheckBox(self.dataframe, text="Bot view")
+        self.botview.grid(row=3,column=2,pady=5,padx=5)
+
+    # ======= Public Functions ======= #
+    def set_bot_pos(self,cords): # Update the bot position. Also mapview and path if active
+        # Update the bot position
+        self.botlattext.configure(text=("Latitude : {:.7f}").format(cords[0]))
+        self.botlontext.configure(text=("Longitude : {:.7f}").format(cords[1]))
+        self.botmarker.delete()
+        self.botmarker = self.map_wig.set_marker(cords[0],cords[1], marker_color_circle="black", marker_color_outside="gray40")
+        # Follow the bot
+        if self.botview.get():
+            self.map_wig.set_position(cords[0],cords[1])
+        # Update the path
+        if self.marker_path is not None:
+            self.marker_path.delete()
+            self.marker_path = None
+            self.__draw_path()
+    def set_goal(self,cords): # Set goal point up to a limit. The limit is set in the constructor.
+        self.marker_list.append(self.map_wig.set_marker(cords[0],cords[1]))
+        while len(self.marker_list) > self.number_of_markers: # Remove the oldest marker if the limit is reached
+            self.marker_list[0].delete()
+            self.marker_list.pop(0)
+    def remove_goal(self): # Removes the first goal point in the list
+        self.marker_list[0].delete() # Delete the marker from the map
+        self.marker_list.pop(0) # Remove the marker from the list
+    def get_current_goal(self): # Returns the coordinates next goal point
+        if len(self.marker_list)>0:
+            return self.marker_list[0].position
+
+    # ======= Private Functions ======= #
     def __default_view(self):
         self.map_wig.set_position(self.default_pos[0],self.default_pos[1])
         self.map_wig.set_zoom(self.default_zoom)
@@ -86,24 +119,12 @@ class GPS_husky(ctk.CTk):
                 i.delete()
             self.marker_list.clear()
     def __toggle_maps(self):
-        if self.map_wig.tile_server == "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png":
+        if self.map_wig.tile_server == "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png": # This links to the default map from osm
             self.map_wig.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
-            # Change button text
-            self.butMaps.configure(text="Map")
+            self.butMaps.configure(text="Map") # Change button text
         else:
             self.map_wig.set_tile_server("https://a.tile.openstreetmap.org/{z}/{x}/{y}.png")
-            # Change button text
-            self.butMaps.configure(text="Satellite")
-    def set_goal(self,cords):
-        self.marker_list.append(self.map_wig.set_marker(cords[0],cords[1]))
-        while len(self.marker_list) > self.number_of_markers:
-            self.marker_list[0].delete()
-            self.marker_list.pop(0)
-    def set_bot_pos(self,cords):
-        self.botlattext.configure(text=("Latitude : {:.7f}").format(cords[0]))
-        self.botlontext.configure(text=("Longitude : {:.7f}").format(cords[1]))
-        self.botmarker.delete()
-        self.botmarker = self.map_wig.set_marker(cords[0],cords[1], marker_color_circle="black", marker_color_outside="gray40")
+            self.butMaps.configure(text="Satellite") # Change button text
     def __input_goal(self):
         try:
             lat = float(self.goallat.get())
@@ -117,7 +138,7 @@ class GPS_husky(ctk.CTk):
             self.goallon.delete(0, END)
             self.goallon.insert(0, "Invalid input: ")
             return
-        coord = (float(self.goallat.get()), float(self.goallon.get()))
+        coord = (float(lat), float(lon))
         self.set_goal(coord)
     def __draw_path(self):
         pos_list = []
@@ -131,7 +152,6 @@ class GPS_husky(ctk.CTk):
         if len(pos_list)>1:
             self.marker_path = self.map_wig.set_path(pos_list, color="red")
         
-
 
 if __name__ == "__main__":
     gps_husky=GPS_husky()
