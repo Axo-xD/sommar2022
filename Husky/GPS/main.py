@@ -22,5 +22,5 @@ test = GPS_husky()  # Create a new instance of the class
 test.set_goal((61.4587532 + 0.0002, 5.8876001 + 0.0002))
 test.set_goal((61.4587532 + 0.0002, 5.8870001))
 test.get_current_goal()
-test.after(500, cordset) # Start the interupt loop
+test.after(1000, cordset) # Start the interupt loop
 test.mainloop() # Start the mainloop
