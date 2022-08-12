@@ -1,12 +1,24 @@
 from tkinter import *
 import tkintermapview as tkmap
 import customtkinter as ctk
+from typing import Union
 
 '''
 https://github.com/TomSchimansky/TkinterMapView
 https://github.com/TomSchimansky/CustomTkinter
 
 Tkinter Map View used to display the map. CustomTkinter used to create the GUI elements and improve the look from Tkinter.
+
+ToDo:
+    - Update markers. Current version of TkinterMapView does not support changing the looks of markers, only colour.
+
+Known Bugs:
+    - At different map zoom levels, the map do not always centered on the correct position.
+        * Fixed by setting the zoom level to int in map_widget.py. Pull request sent to TkinterMapView.
+    - The map stops updating when map fading is activated.
+        * Fixed by disabling map fading in map_widget.py.
+            def mouse_click(self, event):
+                self.fading_possible = False  # disable fading while mouse is down
 
 '''
 
@@ -16,15 +28,16 @@ ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark
 class GPS_husky(ctk.CTk):
     def __init__(self,
                 title="Husky GPS", 
-                geometry="1200x900", # Window "{With}x{Hight}"
-                map_width=1150, 
-                map_height=600, 
-                default_pos=(61.4587735, 5.8875730), 
-                default_zoom=18, 
-                husky_pos=(61.4587532, 5.8876001),
-                number_of_markers = 4): # Maximum number of goal points
+                geometry: str="1200x900", # Window "{With}x{Hight}"
+                map_width: int=1150, 
+                map_height: int=600, 
+                default_pos: tuple=(61.4587735, 5.8875730), # Default position of the map
+                default_zoom: int=18, 
+                husky_pos: tuple=(61.4587532, 5.8876001), # Default position of the bot
+                number_of_markers: int = 4): # Maximum number of goal points
         super().__init__() # Call the parent class constructor.
 
+        # ======= Variables ======= #
         self.title(title)
         self.geometry(geometry)
 
@@ -49,7 +62,7 @@ class GPS_husky(ctk.CTk):
         self.map_wig = tkmap.TkinterMapView(self.mapframe, width=map_width, height=map_height, corner_radius=10)
         self.map_wig.pack()
         self.__default_view()
-        # Right click options #
+        # Right click map options #
         self.map_wig.add_right_click_menu_command("Set goal point", self.set_goal, pass_coords=True)
 
         # ===== Data Wigets ===== #
@@ -82,8 +95,12 @@ class GPS_husky(ctk.CTk):
         self.botview = ctk.CTkCheckBox(self.dataframe, text="Bot view")
         self.botview.grid(row=3,column=2,pady=5,padx=5)
 
-    # ======= Public Functions ======= #
-    def set_bot_pos(self,cords): # Update the bot position. Also mapview and path if active
+    # ======= Public Methods ======= #
+    def set_bot_pos(self,cords:Union[list,tuple]): # Update the bot position. Also mapview and path if active
+        '''
+        Use this method to update the bot position on the map.
+        Argument: A tuple or list with the coordinates (lat,lon) as floats.
+        '''
         # Update the bot position
         self.botlattext.configure(text=("Latitude : {:.7f}").format(cords[0]))
         self.botlontext.configure(text=("Longitude : {:.7f}").format(cords[1]))
@@ -97,19 +114,44 @@ class GPS_husky(ctk.CTk):
             self.marker_path.delete()
             self.marker_path = None
             self.__draw_path()
-    def set_goal(self,cords): # Set goal point up to a limit. The limit is set in the constructor.
+    def set_goal(self,cords:Union[list,tuple]): # Set goal point up to a limit. The limit is set in the constructor.
+        '''
+        Use this method to set a goal point.
+        Argument: A tuple or list with the coordinates (lat,lon) as float.
+        '''
         self.marker_list.append(self.map_wig.set_marker(cords[0],cords[1]))
         while len(self.marker_list) > self.number_of_markers: # Remove the oldest marker if the limit is reached
             self.marker_list[0].delete()
             self.marker_list.pop(0)
     def remove_goal(self): # Removes the first goal point in the list
-        self.marker_list[0].delete() # Delete the marker from the map
-        self.marker_list.pop(0) # Remove the marker from the list
-    def get_current_goal(self): # Returns the coordinates next goal point
+        '''
+        Use this method to remove the first goal point in the list. (The oldest one)
+        Argument: None
+        '''
+        if len(self.marker_list) > 0:
+            self.marker_list[0].delete() # Delete the marker from the map
+            self.marker_list.pop(0) # Remove the marker from the list
+        else:
+            print("No goal to remove")
+    def get_current_goal(self)->tuple: # Returns the coordinates next goal point
+        '''
+        This method returns the coordinates of the next goal point. (The oldest in the list of goal points)
+        Argument: None
+        '''
         if len(self.marker_list)>0:
             return self.marker_list[0].position
+    def get_goal_list(self)->list:
+        '''
+        This method returns the list of goal points.
+        Argument: None
+        '''
+        goal_list = []
+        if len(self.marker_list)>0:
+            for marker in self.marker_list:
+                goal_list.append(marker.position)
+        return goal_list
 
-    # ======= Private Functions ======= #
+    # ======= Private Methods ======= #
     def __default_view(self):
         self.map_wig.set_position(self.default_pos[0],self.default_pos[1])
         self.map_wig.set_zoom(self.default_zoom)
